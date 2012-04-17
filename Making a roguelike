@@ -1,0 +1,38 @@
+o I'm making one of these things. I noticed that [LAMMJ][LAMMJohnson] was making one, it looked fun, and I'd never worked with ncurses before.
+
+``` go
+createMenu() {
+c1 := m.NewItem("Black & Yellow", "BY")
+c2 := m.NewItem("Black & Red", "BR")
+
+// When using NewForm & NewMenu (passing a pointer to array of pointers in C) remember to add a nil entry to the end of your slice.
+items := []*m.Item{c1, c2, nil}
+menu, _ = m.NewMenu(items)
+
+menu.SetWin(windows[1].w)
+// Derwin creates a subwindow with a position that is relative to the parent window.
+dw, _ := windows[1].w.Derwin(5, 19, 4, 3)
+menu.SetSub(dw)
+
+windows[1].w.Addstr(6, 2, "Border color", 0)
+
+menu.Post()
+windows[1].w.Refresh()
+}```
+
+The desire to use ncurses died actually very quickly after seeing the usage. It's irritating that you have to read through the documentation
+constantly because all of the functions have odd naming. This, on top of the fact that it requires you to manage memory despite Go being a 
+garbage collected lang was quite bewildering. So instead I started work on something called [termboxadds][Termbox-Additions]. [termbox][Termbox] is
+a lovely simple ncurses-like lib written by [nsf][nsf] the author of other helpful tools like Go-Code. It lacked the extensions like menus and forms
+however, so I had to write them in. Thankfully there's really nice documentation for [termbox][Termbox] so it wasn't an issue to write this in.
+
+After having done that, the result is this:
+
+![Screenshot of roguelike][screenshot]
+
+[nsf]: http://github.com/nsf/
+[termbox]: http://github.com/nsf/termbox-go
+[termboxadds]: http://github.com/chownplusx/Termbox-Additions
+[screenshot]: http://ompldr.org/vZGVlZQ
+[LAMMJ]: http://github.com/LAMMJohnson
+[TROG]: http://github.com/LAMMJohnson/TROG
