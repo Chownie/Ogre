@@ -26,7 +26,7 @@ loop:
 				break loop
 			default:
 				if gameState.Mode == MODE_SPLASH {
-					gameState.Mode = MODE_MAPMAKE
+					gameState.Mode = MODE_CREATION
 				}
 			}
 		}

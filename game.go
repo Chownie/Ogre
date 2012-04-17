@@ -68,7 +68,6 @@ func (gs GameState) GameLoop() {
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		displaySplash(gs.Width, gs.Height, termbox.ColorRed)
 		termbox.Flush()
-
 	case MODE_CREATION:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		gs.charCreate()
