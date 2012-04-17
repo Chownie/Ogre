@@ -30,7 +30,7 @@ type Map struct {
 	Data   [][]*Tile
 }
 
-func (level Map) LocateTile(x, y int) *Tile {
+func (level *Map) LocateTile(x, y int) *Tile {
 	return level.Data[x][y]
 }
 

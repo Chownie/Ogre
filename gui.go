@@ -17,13 +17,13 @@ func displaySplash(width, height int, fg termbox.Attribute) {
 	DrawText(x+12, y+24, "Press any key to start")
 }
 
-func (ch Character) DisplayPlayer() {
+func (ch *Character) DisplayPlayer() {
 	DrawRichText(ch.X, ch.Y, "@", termbox.ColorGreen, termbox.ColorDefault)
 }
 
-func (gs GameState) DisplayMap() {
-	for y := 0; y < gs.Height; y++ {
-		for x := 0; x < gs.Width; x++ {
+func (gs *GameState) DisplayMap() {
+	for x := 0; x < gs.GameMap.Width; x++ {
+		for y := 0; y < gs.GameMap.Height; y++ {
 			tile := gs.GameMap.Data[x][y]
 			DrawRichText(x, y, tile.Char, tile.Color, termbox.ColorDefault)
 		}
