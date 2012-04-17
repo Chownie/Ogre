@@ -34,6 +34,25 @@ func (level Map) LocateTile(x, y int) *Tile {
 	return level.Data[x][y]
 }
 
+func BlankMap(width, height int) *Map {
+	final := [][]*Tile{}
+	temp := []*Tile{}
+	for y := 0; y < height; y++ {
+		temp = []*Tile{}
+		for x := 0; x < width; x++ {
+			tile := Tile{}
+			tile.Color = termbox.ColorCyan
+			tile.IsWalkable = true
+			tile.IsVisible = true
+			tile.IsExit = false
+			tile.Char = "."
+			temp = append(temp, &tile)
+		}
+		final = append(final, temp)
+	}
+	return &Map{Width: width, Height: height, Data: final}
+}
+
 func (level Map) MakeRoom(roomcount int, exit bool) bool {
 	rand.Seed(time.Now().Unix())
 	width := rand.Intn(MAXROOMW) + MINROOMW
@@ -41,14 +60,12 @@ func (level Map) MakeRoom(roomcount int, exit bool) bool {
 
 	switch roomcount {
 	case 0:
-		for x := 0; x < width; x++ {
-			for y := 0; y < height; y++ {
-				tile := Tile{}
-				tile.Color = termbox.ColorCyan
-				tile.IsWalkable = true
-				tile.IsVisible = true
-				tile.IsExit = false
-				level.Data[x][y] = &tile
+		for y := 0; y < height; y++ {
+			for x := 0; x < width; x++ {
+				level.Data[x][y].Color = termbox.ColorCyan
+				level.Data[x][y].IsWalkable = true
+				level.Data[x][y].IsVisible = true
+				level.Data[x][y].IsExit = false
 			}
 		}
 	}

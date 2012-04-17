@@ -5,6 +5,13 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+const (
+	MODE_CREATION = "creation"
+	MODE_SPLASH   = "splash"
+	MODE_MAPMAKE  = "mapmake"
+	MODE_GAME     = "game"
+)
+
 type GameState struct {
 	GameMap   *Map
 	Player    *Character
@@ -57,26 +64,28 @@ func (gs GameState) Controls() {
 
 func (gs GameState) GameLoop() {
 	switch gs.Mode {
-	case "splash":
+	case MODE_SPLASH:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		displaySplash(gs.Width, gs.Height, termbox.ColorRed)
 		termbox.Flush()
 
-	case "creation":
+	case MODE_CREATION:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		gs.charCreate()
-		gs.Mode = "mapmake"
+		termbox.Flush()
+		gs.Mode = MODE_MAPMAKE
 
-	case "mapmake":
+	case MODE_MAPMAKE:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		gs.GameMap.MakeRoom(10, false)
 		termbox.Flush()
-		gs.Mode = "game"
+		gs.Mode = MODE_GAME
 
-	case "game":
+	case MODE_GAME:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		gs.Controls()
 		gs.Player.DisplayPlayer()
+		gs.DisplayMap()
 		termbox.Flush()
 
 	default:
