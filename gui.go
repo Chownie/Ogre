@@ -18,14 +18,16 @@ func displaySplash(width, height int, fg termbox.Attribute) {
 }
 
 func (ch *Character) DisplayPlayer() {
-	DrawRichText(ch.X, ch.Y, "@", termbox.ColorGreen, termbox.ColorDefault)
+	DrawRichText(ch.X, ch.Y, "@", termbox.ColorGreen, termbox.ColorBlack)
 }
 
 func (gs *GameState) DisplayMap() {
 	for x := 0; x < gs.GameMap.Width; x++ {
 		for y := 0; y < gs.GameMap.Height; y++ {
 			tile := gs.GameMap.Data[x][y]
-			DrawRichText(x, y, tile.Char, tile.Color, termbox.ColorDefault)
+			if tile.IsVisible == true {
+				DrawRichText(x, y, tile.Char, tile.Color, termbox.ColorBlack)
+			}
 		}
 	}
 }

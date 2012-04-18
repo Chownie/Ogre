@@ -43,7 +43,7 @@ func BlankMap(width, height int) *Map {
 			tile := Tile{}
 			tile.Color = termbox.ColorCyan
 			tile.IsWalkable = true
-			tile.IsVisible = true
+			tile.IsVisible = false
 			tile.IsExit = false
 			tile.Char = "."
 			temp = append(temp, &tile)
@@ -70,7 +70,6 @@ func (level *Map) MakeRoom(roomcount int, exit bool) {
 					level.Data[x][y].IsWalkable = false
 				}
 				level.Data[x][y].Color = termbox.ColorGreen
-				level.Data[x][y].IsVisible = true
 				level.Data[x][y].IsExit = false
 			}
 		}

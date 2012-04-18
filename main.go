@@ -19,13 +19,13 @@ loop:
 	for {
 		termbox.Clear(termbox.ColorWhite, termbox.ColorDefault)
 		gameState.GameLoop()
-		switch ev := termbox.PollEvent(); ev.Type {
-		case termbox.EventKey:
-			switch ev.Key {
-			case termbox.KeyEsc:
-				break loop
-			default:
-				if gameState.Mode == MODE_SPLASH {
+		if gameState.Mode == MODE_SPLASH {
+			switch ev := termbox.PollEvent(); ev.Type {
+			case termbox.EventKey:
+				switch ev.Key {
+				case termbox.KeyEsc:
+					break loop
+				default:
 					gameState.Mode = MODE_CREATION
 				}
 			}

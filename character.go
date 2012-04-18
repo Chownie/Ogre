@@ -36,8 +36,7 @@ var ClassBase []Pair = []Pair{
 	{Key: "Barbarian", Value: []int{24, 10, 24, 16, 6, 2, 8}},
 	{Key: "Pyromancer", Value: []int{18, 10, 16, 12, 8, 14, 12}},
 	{Key: "Sorceror", Value: []int{16, 10, 14, 12, 6, 24, 8}},
-	{Key: "Noble", Value: []int{38, 6, 6, 6, 6, 6, 6}},
-	{Key: "Infested", Value: []int{13, 12, 13, 13, 13, 13, 13}}}
+	{Key: "Noble", Value: []int{38, 6, 6, 6, 6, 6, 6}}}
 
 var RaceBase []Pair = []Pair{
 	//   VIT|END|STR|RES|FAI|WIS|PER

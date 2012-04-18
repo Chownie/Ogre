@@ -3,6 +3,8 @@ package main
 import (
 	. "github.com/chownplusx/Termbox-Additions"
 	"github.com/nsf/termbox-go"
+	"math"
+	"os"
 )
 
 const (
@@ -58,6 +60,30 @@ func (gs *GameState) Controls() {
 			gs.Player.MoveUp(gs)
 		case termbox.KeyArrowDown:
 			gs.Player.MoveDown(gs)
+		case termbox.KeyEsc:
+			os.Exit(0)
+		default:
+			print(ev.Key)
+			print("\n")
+			print(ev.Ch)
+			print("\n")
+			print("\n")
+		}
+	}
+}
+
+func (gs *GameState) LightArea() {
+	for i := 0; i < 360; i += 30 {
+		radians := float64(math.Pi) * float64(i) / 180
+		for l := 0; l < gs.Player.Per; l++ {
+			dx := math.Cos(float64(radians)) * float64(l)
+			dy := math.Sin(float64(radians)) * float64(l)
+			tile := gs.GameMap.LocateTile(int(dx), int(dy))
+			if tile.IsWalkable {
+				tile.IsVisible = true
+			} else {
+				break
+			}
 		}
 	}
 }
@@ -82,8 +108,10 @@ func (gs *GameState) GameLoop() {
 		gs.Mode = MODE_GAME
 
 	case MODE_GAME:
+		termbox.Clear(termbox.ColorDefault, termbox.ColorBlack)
 		gs.DisplayMap()
 		gs.Controls()
+		gs.LightArea()
 		gs.Player.DisplayPlayer()
 		termbox.Flush()
 
