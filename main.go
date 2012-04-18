@@ -26,7 +26,7 @@ loop:
 				case termbox.KeyEsc:
 					break loop
 				default:
-					gameState.Mode = MODE_CREATION
+					gameState.Mode = MODE_MAPMAKE
 				}
 			}
 		}

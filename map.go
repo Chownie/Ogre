@@ -28,6 +28,8 @@ type Map struct {
 	Width  int
 	Height int
 	Data   [][]*Tile
+	StartX int
+	StartY int
 }
 
 func (level *Map) LocateTile(x, y int) (*Tile, bool) {
@@ -63,6 +65,12 @@ func BlankMap(width, height int) *Map {
 		final = append(final, temp)
 	}
 	return &Map{Width: width, Height: height, Data: final}
+}
+
+func (level *Map) GenerateMap() {
+	rand.Seed(time.Now().Unix())
+	roomCount := rand.Intn(MAXROOMS) + MINROOMS
+	print(roomCount)
 }
 
 func (level *Map) MakeRoom(roomcount int, exit bool) {

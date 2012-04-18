@@ -1,0 +1,18 @@
+To compile:
+
+Make sure you have the Go toolchain downloaded. You may have it in your repository but it's distro agnostic (and OS agnostic to some extent)
+so you can just download the gzipped tarball at http://golang.org if you wish. Follow the instructions! Compiling something with required
+external packages means your $GOROOT *must* be set!
+
+External packages:
+	`go get github.com/nsf/termbox-go`
+	`go get github.com/chownplusx/termbox-additions`
+
+	NOTE: If you have these installed and wish to update, use the -u flag. The go util will not make a check against the online repo unless
+	you tell it to. It will needlessly reinstall your local copy.
+
+If you have those 2 packages installed, building is as easy as doing
+
+`go build`
+
+This will result in a binary called Ogre.

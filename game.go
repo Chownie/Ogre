@@ -61,6 +61,7 @@ func (gs *GameState) Controls() {
 		case termbox.KeyArrowDown:
 			gs.Player.MoveDown(gs)
 		case termbox.KeyEsc:
+			termbox.Close()
 			os.Exit(0)
 		default:
 			print(ev.Key)
@@ -73,7 +74,7 @@ func (gs *GameState) Controls() {
 }
 
 func (gs *GameState) LightArea() {
-	for i := 0; i < 360; i++ {
+	for i := 0; i < 360; i += 4 {
 		radians := (math.Pi * float64(i)) / 180
 		for l := 0; l < gs.Player.Per; l++ {
 			dx := math.Cos(radians) * float64(l)
@@ -102,15 +103,17 @@ func (gs *GameState) GameLoop() {
 		displaySplash(gs.Width, gs.Height, termbox.ColorRed)
 		termbox.Flush()
 		// No need for a mode change here, it's done elsewhere
-	case MODE_CREATION:
-		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-		gs.charCreate()
-		termbox.Flush()
-		gs.Mode = MODE_MAPMAKE
 
 	case MODE_MAPMAKE:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		gs.GameMap.MakeRoom(0, false)
+		termbox.Flush()
+		gs.Mode = MODE_CREATION
+
+	case MODE_CREATION:
+		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+		gs.charCreate()
+		gs.LightArea()
 		termbox.Flush()
 		gs.Mode = MODE_GAME
 

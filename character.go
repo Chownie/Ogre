@@ -40,7 +40,7 @@ var ClassBase []Pair = []Pair{
 
 var RaceBase []Pair = []Pair{
 	//   VIT|END|STR|RES|FAI|WIS|PER
-	{Key: "Western Pilgrim", Value: []int{0, 0, 2, 0, 2, -2, -2}},
+	{Key: "Western Pilgrim", Value: []int{0, 0, 2, 0, 2, -2, 0}},
 	{Key: "Northern Hallowman", Value: []int{2, 2, -2, 0, 0, 0, -2}},
 	{Key: "Swamp Denizen", Value: []int{0, -2, 0, 0, -2, 2, 2}}}
 
