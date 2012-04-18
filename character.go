@@ -53,7 +53,8 @@ func (ch *Character) MoveLeft(gm *GameState) {
 	if ch.X == 0 {
 		return
 	}
-	if gm.GameMap.LocateTile(ch.X-1, ch.Y).IsWalkable {
+	tile, exists := gm.GameMap.LocateTile(ch.X-1, ch.Y)
+	if exists == true && tile.IsWalkable {
 		ch.X -= 1
 	}
 }
@@ -62,7 +63,8 @@ func (ch *Character) MoveRight(gm *GameState) {
 	if ch.X == gm.GameMap.Width {
 		return
 	}
-	if gm.GameMap.LocateTile(ch.X+1, ch.Y).IsWalkable {
+	tile, exists := gm.GameMap.LocateTile(ch.X+1, ch.Y)
+	if exists == true && tile.IsWalkable {
 		ch.X += 1
 	}
 }
@@ -71,7 +73,8 @@ func (ch *Character) MoveUp(gm *GameState) {
 	if ch.Y == 0 {
 		return
 	}
-	if gm.GameMap.LocateTile(ch.X, ch.Y-1).IsWalkable {
+	tile, exists := gm.GameMap.LocateTile(ch.X, ch.Y-1)
+	if exists == true && tile.IsWalkable {
 		ch.Y -= 1
 	}
 }
@@ -80,14 +83,15 @@ func (ch *Character) MoveDown(gm *GameState) {
 	if ch.Y == gm.GameMap.Height {
 		return
 	}
-	if gm.GameMap.LocateTile(ch.X, ch.Y+1).IsWalkable {
+	tile, exists := gm.GameMap.LocateTile(ch.X, ch.Y+1)
+	if exists == true && tile.IsWalkable {
 		ch.Y += 1
 	}
 }
 
 func (character *Character) CreateChar(class int, race int) *Character {
-	character.X = 2
-	character.Y = 2
+	character.X = 12
+	character.Y = 12
 
 	classInfo := ClassBase[class]
 	character.ClassName = classInfo.Key

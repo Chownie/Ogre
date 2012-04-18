@@ -30,8 +30,20 @@ type Map struct {
 	Data   [][]*Tile
 }
 
-func (level *Map) LocateTile(x, y int) *Tile {
-	return level.Data[x][y]
+func (level *Map) LocateTile(x, y int) (*Tile, bool) {
+	retTile := &Tile{}
+	exists := false
+	if x > level.Width-1 || x < 0 {
+		retTile = &Tile{}
+		exists = false
+	} else if y > level.Height-1 || y < 0 {
+		retTile = &Tile{}
+		exists = false
+	} else {
+		retTile = level.Data[x][y]
+		exists = true
+	}
+	return retTile, exists
 }
 
 func BlankMap(width, height int) *Map {
