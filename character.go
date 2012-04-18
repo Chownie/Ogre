@@ -87,6 +87,8 @@ func (ch *Character) MoveDown(gm *GameState) {
 }
 
 func (character *Character) CreateChar(class int, race int) *Character {
+	character.X = 2
+	character.Y = 2
 
 	classInfo := ClassBase[class]
 	character.ClassName = classInfo.Key

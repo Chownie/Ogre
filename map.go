@@ -53,7 +53,7 @@ func BlankMap(width, height int) *Map {
 	return &Map{Width: width, Height: height, Data: final}
 }
 
-func (level Map) MakeRoom(roomcount int, exit bool) bool {
+func (level *Map) MakeRoom(roomcount int, exit bool) {
 	rand.Seed(time.Now().Unix())
 	width := rand.Intn(MAXROOMW) + MINROOMW
 	height := rand.Intn(MAXROOMH) + MINROOMH
@@ -62,12 +62,17 @@ func (level Map) MakeRoom(roomcount int, exit bool) bool {
 	case 0:
 		for y := 0; y < height; y++ {
 			for x := 0; x < width; x++ {
-				level.Data[x][y].Color = termbox.ColorCyan
-				level.Data[x][y].IsWalkable = true
+				if x == width-1 || x == 0 {
+					level.Data[x][y].Char = "#"
+					level.Data[x][y].IsWalkable = false
+				} else if y == height-1 || y == 0 {
+					level.Data[x][y].Char = "#"
+					level.Data[x][y].IsWalkable = false
+				}
+				level.Data[x][y].Color = termbox.ColorGreen
 				level.Data[x][y].IsVisible = true
 				level.Data[x][y].IsExit = false
 			}
 		}
 	}
-	return true
 }

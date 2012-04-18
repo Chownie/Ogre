@@ -77,7 +77,7 @@ func (gs *GameState) GameLoop() {
 
 	case MODE_MAPMAKE:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-		gs.GameMap.MakeRoom(10, false)
+		gs.GameMap.MakeRoom(0, false)
 		termbox.Flush()
 		gs.Mode = MODE_GAME
 
