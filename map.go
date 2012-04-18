@@ -13,6 +13,11 @@ const (
 	MINROOMH = 8
 	MAXROOMS = 15 // Actually 25
 	MINROOMS = 10
+
+	WALL_CHAR       = "#"
+	FLOOR_CHAR      = "."
+	UPSTAIRS_CHAR   = ">"
+	DOWNSTAIRS_CHAR = "<"
 )
 
 type Tile struct {
@@ -20,8 +25,16 @@ type Tile struct {
 	IsVisible   bool
 	IsWalkable  bool
 	BlocksLight bool
+	IsWall      bool
 	Char        string
 	IsExit      bool
+}
+
+type Rect struct {
+	StartX int
+	StartY int
+	Width  int
+	Height int
 }
 
 type Map struct {
@@ -56,10 +69,11 @@ func BlankMap(width, height int) *Map {
 		for x := 0; x < width; x++ {
 			tile := Tile{}
 			tile.Color = termbox.ColorCyan
-			tile.IsWalkable = true
+			tile.IsWalkable = false
 			tile.IsVisible = false
+			tile.IsWall = true
 			tile.IsExit = false
-			tile.Char = "."
+			tile.Char = WALL_CHAR
 			temp = append(temp, &tile)
 		}
 		final = append(final, temp)
@@ -67,30 +81,45 @@ func BlankMap(width, height int) *Map {
 	return &Map{Width: width, Height: height, Data: final}
 }
 
-func (level *Map) GenerateMap() {
-	rand.Seed(time.Now().Unix())
-	roomCount := rand.Intn(MAXROOMS) + MINROOMS
-	print(roomCount)
-}
-
-func (level *Map) MakeRoom(roomcount int, exit bool) {
+func (gs *GameState) GenRooms() {
 	rand.Seed(time.Now().Unix())
 	width := rand.Intn(MAXROOMW) + MINROOMW
 	height := rand.Intn(MAXROOMH) + MINROOMH
 
-	switch roomcount {
-	case 0:
-		for y := 0; y < height; y++ {
-			for x := 0; x < width; x++ {
-				if x == width-1 || x == 0 {
-					level.Data[x+10][y].Char = "#"
-					level.Data[x+10][y].IsWalkable = false
-				} else if y == height-1 || y == 0 {
-					level.Data[x+10][y].Char = "#"
-					level.Data[x+10][y].IsWalkable = false
+	level := gs.GameMap
+
+	cells := []Rect{}
+
+	for y := 0; y < gs.GameMap.Height; y += 10 {
+		for x := 0; x < gs.GameMap.Width; x += 10 {
+			cells = append(cells, Rect{StartX: x, StartY: y, Width: 10, Height: 10})
+		}
+	}
+
+	for i, e := range cells {
+		print(i)
+		switch i {
+		case 0:
+			level.StartX = e.StartX + (width / 2)
+			level.StartY = e.StartY + (height / 2)
+			level.Data[level.StartX][level.StartY].Char = UPSTAIRS_CHAR
+			level.Data[level.StartX][level.StartY].Color = termbox.ColorBlue
+		}
+
+		for y := e.StartY; y < height; y++ {
+			for x := e.StartX; x < width; x++ {
+				if x == width-1 || x == 0 { // Is it a wall?
+					level.Data[x][y].IsWalkable = false
+					level.Data[x][y].IsWall = true
+				} else if y == height-1 || y == 0 { // Is it a wall?
+					level.Data[x][y].IsWalkable = false
+					level.Data[x][y].IsWall = true
+				} else {
+					level.Data[x][y].IsWalkable = true
+					level.Data[x][y].IsWall = false
+					level.Data[x][y].Char = FLOOR_CHAR
+					level.Data[x][y].Color = termbox.ColorGreen
 				}
-				level.Data[x+10][y].Color = termbox.ColorGreen
-				level.Data[x+10][y].IsExit = false
 			}
 		}
 	}

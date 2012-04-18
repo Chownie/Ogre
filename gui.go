@@ -4,6 +4,8 @@ import (
 	//. "github.com/chownplusx/Termbox-Additions"
 	. "github.com/chownplusx/Termbox-Additions/utils"
 	"github.com/nsf/termbox-go"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -21,13 +23,22 @@ func (ch *Character) DisplayPlayer() {
 	DrawRichText(ch.X, ch.Y, "@", termbox.ColorGreen, termbox.ColorBlack)
 }
 
+func (gs *GameState) DisplayStatus() {
+	hp := strconv.Itoa(gs.Player.HP)
+	maxhp := strconv.Itoa(gs.Player.Vit * (gs.Player.Res / 2))
+	name := gs.Player.Name
+	gold := strconv.Itoa(gs.Player.Gold)
+	statusbar := []string{name, " | HP: ", hp, "/", maxhp, " | Gold: ", gold}
+	DrawText(0, gs.ScreenHeight-1, strings.Join(statusbar, ""))
+}
+
 func (gs *GameState) DisplayMap() {
 	for x := 0; x < gs.GameMap.Width; x++ {
 		for y := 0; y < gs.GameMap.Height; y++ {
 			tile := gs.GameMap.Data[x][y]
-			if tile.IsVisible == true {
-				DrawRichText(x, y, tile.Char, tile.Color, termbox.ColorBlack)
-			}
+			//if tile.IsVisible == true {
+			DrawRichText(x, y, tile.Char, tile.Color, termbox.ColorBlack)
+			//}
 		}
 	}
 }

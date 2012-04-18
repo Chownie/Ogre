@@ -4,10 +4,12 @@ type Character struct {
 	X         int
 	Y         int
 	Char      string
+	Name      string
 	ClassID   int
 	RaceID    int
 	ClassName string
 	RaceName  string
+	HP        int
 	Vit       int
 	End       int
 	Str       int
@@ -15,6 +17,7 @@ type Character struct {
 	Fai       int
 	Wis       int
 	Per       int
+	Gold      int
 	Inventory []*Item
 	HEAD      *Item
 	CHEST     *Item
@@ -89,9 +92,11 @@ func (ch *Character) MoveDown(gm *GameState) {
 	}
 }
 
-func (character *Character) CreateChar(class int, race int) *Character {
-	character.X = 12
-	character.Y = 12
+func (character *Character) CreateChar(class int, race int, name string, gs *GameState) *Character {
+	character.X = gs.GameMap.StartX
+	character.Y = gs.GameMap.StartY
+
+	character.Name = name
 
 	classInfo := ClassBase[class]
 	character.ClassName = classInfo.Key
@@ -114,6 +119,9 @@ func (character *Character) CreateChar(class int, race int) *Character {
 	character.Fai += raceInfo.Value[4]
 	character.Wis += raceInfo.Value[5]
 	character.Per += raceInfo.Value[6]
+
+	character.HP = character.Vit * (character.Res / 2)
+	character.Gold = 5
 
 	return character
 }

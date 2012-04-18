@@ -13,7 +13,7 @@ func main() {
 	defer termbox.Close()
 	width, height := termbox.Size()
 
-	gameState := GameState{GameMap: BlankMap(50, 50), Width: width, Height: height}
+	gameState := GameState{GameMap: BlankMap(50, 50), ScreenWidth: width, ScreenHeight: height}
 	gameState.Mode = MODE_SPLASH
 loop:
 	for {

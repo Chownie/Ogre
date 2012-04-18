@@ -15,17 +15,18 @@ const (
 )
 
 type GameState struct {
-	GameMap   *Map
-	Player    *Character
-	EnemyList *Enemy
-	Mode      string
-	Width     int
-	Height    int
+	GameMap      *Map
+	Player       *Character
+	EnemyList    *Enemy
+	ItemMap      []*Item
+	Mode         string
+	ScreenWidth  int
+	ScreenHeight int
 }
 
 func (gs *GameState) charCreate() {
 	character := Character{}
-	displaySplash(gs.Width, gs.Height, termbox.ColorCyan)
+	displaySplash(gs.ScreenWidth, gs.ScreenHeight, termbox.ColorBlue)
 	classOptions := []string{}
 	raceOptions := []string{}
 
@@ -39,12 +40,14 @@ func (gs *GameState) charCreate() {
 	raceMenuW, raceMenuH := GetMenuSize("Pick your race", raceOptions)
 	classMenuW, classMenuH := GetMenuSize("Pick your class", classOptions)
 
-	race := DrawMenu((gs.Width/2)-(raceMenuW/2),
-		(gs.Height/2)-(raceMenuH/2), "Pick your race", raceOptions)
-	class := DrawMenu((gs.Width/2)-(classMenuW/2),
-		(gs.Height/2)-(classMenuH/2), "Pick your class", classOptions)
+	race := DrawMenu((gs.ScreenWidth/2)-(raceMenuW/2),
+		(gs.ScreenHeight/2)-(raceMenuH/2), "Pick your race", raceOptions)
+	class := DrawMenu((gs.ScreenWidth/2)-(classMenuW/2),
+		(gs.ScreenHeight/2)-(classMenuH/2), "Pick your class", classOptions)
+	name := DrawForm((gs.ScreenWidth/2)-(classMenuW/2),
+		(gs.ScreenHeight/2)-(classMenuH/2), "What's your name?")
 	termbox.Flush()
-	character.CreateChar(class, race)
+	character.CreateChar(class, race, name, gs)
 	gs.Player = &character
 }
 
@@ -83,7 +86,7 @@ func (gs *GameState) LightArea() {
 			y := int(dy)
 			tile, exists := gs.GameMap.LocateTile(gs.Player.X+x, gs.Player.Y+y)
 			if exists == true {
-				if tile.IsWalkable {
+				if tile.IsWall == false {
 					tile.IsVisible = true
 				} else {
 					tile.IsVisible = true
@@ -100,13 +103,13 @@ func (gs *GameState) GameLoop() {
 	switch gs.Mode {
 	case MODE_SPLASH:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-		displaySplash(gs.Width, gs.Height, termbox.ColorRed)
+		displaySplash(gs.ScreenWidth, gs.ScreenHeight, termbox.ColorRed)
 		termbox.Flush()
 		// No need for a mode change here, it's done elsewhere
 
 	case MODE_MAPMAKE:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-		gs.GameMap.MakeRoom(0, false)
+		gs.GenRooms()
 		termbox.Flush()
 		gs.Mode = MODE_CREATION
 
@@ -123,6 +126,7 @@ func (gs *GameState) GameLoop() {
 		gs.DisplayMap()
 		gs.Controls()
 		gs.Player.DisplayPlayer()
+		gs.DisplayStatus()
 		termbox.Flush()
 
 	default:
