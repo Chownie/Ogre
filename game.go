@@ -73,13 +73,13 @@ func (gs *GameState) Controls() {
 }
 
 func (gs *GameState) LightArea() {
-	for i := 0; i < 360; i += 30 {
+	for i := 0; i < 360; i++ {
 		radians := (math.Pi * float64(i)) / 180
 		for l := 0; l < gs.Player.Per; l++ {
-			dx := math.Cos(radians) * float64(i)
-			dy := math.Sin(radians) * float64(i)
-			x := int(math.Ceil(dx))
-			y := int(math.Ceil(dy))
+			dx := math.Cos(radians) * float64(l)
+			dy := math.Sin(radians) * float64(l)
+			x := int(dx)
+			y := int(dy)
 			tile, exists := gs.GameMap.LocateTile(gs.Player.X+x, gs.Player.Y+y)
 			if exists == true {
 				if tile.IsWalkable {
@@ -116,10 +116,10 @@ func (gs *GameState) GameLoop() {
 
 	case MODE_GAME:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorBlack)
+		gs.LightArea()
 		gs.DisplayMap()
 		gs.Controls()
 		gs.Player.DisplayPlayer()
-		gs.LightArea()
 		termbox.Flush()
 
 	default:

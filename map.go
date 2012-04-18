@@ -75,14 +75,14 @@ func (level *Map) MakeRoom(roomcount int, exit bool) {
 		for y := 0; y < height; y++ {
 			for x := 0; x < width; x++ {
 				if x == width-1 || x == 0 {
-					level.Data[x][y].Char = "#"
-					level.Data[x][y].IsWalkable = false
+					level.Data[x+10][y].Char = "#"
+					level.Data[x+10][y].IsWalkable = false
 				} else if y == height-1 || y == 0 {
-					level.Data[x][y].Char = "#"
-					level.Data[x][y].IsWalkable = false
+					level.Data[x+10][y].Char = "#"
+					level.Data[x+10][y].IsWalkable = false
 				}
-				level.Data[x][y].Color = termbox.ColorGreen
-				level.Data[x][y].IsExit = false
+				level.Data[x+10][y].Color = termbox.ColorGreen
+				level.Data[x+10][y].IsExit = false
 			}
 		}
 	}
