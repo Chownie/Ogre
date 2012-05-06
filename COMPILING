@@ -6,7 +6,7 @@ external packages means your $GOROOT *must* be set!
 
 External packages:
 	`go get github.com/nsf/termbox-go`
-	`go get github.com/chownplusx/termbox-additions`
+	`go get github.com/chownplusx/Termbox-Additions`
 
 	NOTE: If you have these installed and wish to update, use the -u flag. The go util will not make a check against the online repo unless
 	you tell it to. It will needlessly reinstall your local copy.
