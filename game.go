@@ -109,13 +109,13 @@ func (gs *GameState) GameLoop() {
 
 	case MODE_MAPMAKE:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+		gs.charCreate()
 		gs.GenRooms()
 		termbox.Flush()
 		gs.Mode = MODE_CREATION
 
 	case MODE_CREATION:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-		gs.charCreate()
 		gs.LightArea()
 		termbox.Flush()
 		gs.Mode = MODE_GAME
