@@ -16,7 +16,10 @@ const (
 	FLOOR_CHAR      = "."
 	UPSTAIRS_CHAR   = ">"
 	DOWNSTAIRS_CHAR = "<"
-	SCALE           = 6
+	// Let's define some stuff about the map
+	SCALE    = 6
+	MINROOMS = 6
+	MAXROOMS = 12
 )
 
 // Contains a "stack" of game maps to cycle
@@ -174,17 +177,15 @@ func (gs *GameState) GenRooms() {
 		Room.Width = width
 		gs.GameMap.Grid = append(gs.GameMap.Grid, *Room)
 
-		gs.GenRoute()
 	}
+	gs.GenRoute()
 }
 
 func (gs *GameState) GenRoute() {
 	//Split into two loops because they do different things
-	StartRoomX := Random(0, gs.GameMap.Width/SCALE)
-	//StartRoomY := Random(0, gs.GameMap.Height/SCALE)
-	termbox.Close()
-	print(StartRoomX)
-	for i := 0; i < len(gs.GameMap.Grid); i++ {
+	//StartRoom := Random(0, len(gs.GameMap.Grid))
+	RoomCount := Random(MINROOMS, MAXROOMS)
+	for i := 0; i < RoomCount; i++ {
 		tl := new(Tile)
 		tl.SetFloor()
 		gs.FillSection(&gs.GameMap.Grid[i], tl)
