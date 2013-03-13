@@ -16,6 +16,7 @@ const (
 	FLOOR_CHAR      = "."
 	UPSTAIRS_CHAR   = ">"
 	DOWNSTAIRS_CHAR = "<"
+	SCALE           = 6
 )
 
 // Contains a "stack" of game maps to cycle
@@ -114,7 +115,7 @@ func (gs *GameState) FillSection(sc *Section, tl *Tile) {
 			// fmt.Println("Y: ", y)
 			tile, exists := gs.GameMap.LocateTile(x, y)
 			if !exists {
-				
+
 			}
 			tile.SetFloor()
 		}
@@ -140,18 +141,17 @@ func (gs *GameState) GenRooms() {
 	// Cut the map into squares
 	// I do this by dividing the width/height of the map by a magic number
 	// This gives us the number of squares
-	scale := 6
-	gridsize := (gs.GameMap.Height) / scale
+	gridsize := (gs.GameMap.Height) / SCALE
 
-	for i := 0; i < (scale*scale); i++ {
+	for i := 0; i < (SCALE * SCALE); i++ {
 		StartX := 0
 		StartY := 0
 
-		StartY = (gs.GameMap.Height / scale) * (i / scale)
-		if i%scale == 0 {
-			StartX = (gs.GameMap.Width / scale) * (scale - 1)
+		StartY = (gs.GameMap.Height / SCALE) * (i / SCALE)
+		if i%SCALE == 0 {
+			StartX = (gs.GameMap.Width / SCALE) * (SCALE - 1)
 		} else {
-			StartX = (gs.GameMap.Width / scale) * (i % scale) - gridsize
+			StartX = (gs.GameMap.Width/SCALE)*(i%SCALE) - gridsize
 		}
 
 		height := 6
@@ -160,18 +160,14 @@ func (gs *GameState) GenRooms() {
 		StartX += 2
 		StartY += 2
 
-		var Connected bool
 		if i == 1 {
-			gs.Player.X = StartX + (width/2)
-			gs.Player.Y = StartY + (height/2)
-			Connected = true
-		} else {
-			Connected = false
+			gs.Player.X = StartX + (width / 2)
+			gs.Player.Y = StartY + (height / 2)
 		}
 
 		Room := new(Section)
 		// fmt.Println("NEW SECTION")
-		Room.Connected = Connected
+		Room.Connected = false
 		Room.StartX = StartX
 		Room.StartY = StartY
 		Room.Height = height
@@ -184,6 +180,10 @@ func (gs *GameState) GenRooms() {
 
 func (gs *GameState) GenRoute() {
 	//Split into two loops because they do different things
+	StartRoomX := Random(0, gs.GameMap.Width/SCALE)
+	//StartRoomY := Random(0, gs.GameMap.Height/SCALE)
+	termbox.Close()
+	print(StartRoomX)
 	for i := 0; i < len(gs.GameMap.Grid); i++ {
 		tl := new(Tile)
 		tl.SetFloor()

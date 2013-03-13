@@ -1,7 +1,7 @@
 package main
 
 import (
-	. "github.com/chownplusx/Termbox-Additions"
+	. "github.com/Chownie/Termbox-Additions"
 	"github.com/nsf/termbox-go"
 	"math"
 	"os"

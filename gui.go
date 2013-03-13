@@ -2,7 +2,7 @@ package main
 
 import (
 	//. "github.com/chownplusx/Termbox-Additions"
-	. "github.com/chownplusx/Termbox-Additions/utils"
+	. "github.com/Chownie/Termbox-Additions/utils"
 	"github.com/nsf/termbox-go"
 	"strconv"
 	"strings"
