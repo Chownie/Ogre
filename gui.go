@@ -6,6 +6,8 @@ import (
 	"github.com/nsf/termbox-go"
 	"strconv"
 	"strings"
+
+//	"fmt"
 )
 
 const (
@@ -33,8 +35,8 @@ func (gs *GameState) DisplayStatus() {
 }
 
 func (gs *GameState) DisplayMap() {
-	for x := 0; x < gs.GameMap.Width; x++ {
-		for y := 0; y < gs.GameMap.Height; y++ {
+	for y := 0; y < gs.GameMap.Height; y++ {
+		for x := 0; x < gs.GameMap.Width; x++ {
 			tile := gs.GameMap.Data[x][y]
 			//if tile.IsVisible == true {
 			DrawRichText(x, y, tile.Char, tile.Color, termbox.ColorBlack)

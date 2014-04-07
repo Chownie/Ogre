@@ -1,10 +1,12 @@
 package main
 
 import (
-	. "github.com/Chownie/Termbox-Additions"
+	"github.com/Chownie/Termbox-Additions"
 	"github.com/nsf/termbox-go"
 	"math"
+	"math/rand"
 	"os"
+    "strconv"
 )
 
 const (
@@ -22,6 +24,7 @@ type GameState struct {
 	Mode         string
 	ScreenWidth  int
 	ScreenHeight int
+	RNG          *rand.Rand
 }
 
 func (gs *GameState) charCreate() {
@@ -37,15 +40,9 @@ func (gs *GameState) charCreate() {
 		raceOptions = append(raceOptions, race.Key)
 	}
 
-	raceMenuW, raceMenuH := GetMenuSize("Pick your race", raceOptions)
-	classMenuW, classMenuH := GetMenuSize("Pick your class", classOptions)
-
-	race := DrawMenu((gs.ScreenWidth/2)-(raceMenuW/2),
-		(gs.ScreenHeight/2)-(raceMenuH/2), "Pick your race", raceOptions)
-	class := DrawMenu((gs.ScreenWidth/2)-(classMenuW/2),
-		(gs.ScreenHeight/2)-(classMenuH/2), "Pick your class", classOptions)
-	name := DrawForm((gs.ScreenWidth/2)-(classMenuW/2),
-		(gs.ScreenHeight/2)-(classMenuH/2), "What's your name?")
+	race := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Pick your race", raceOptions, additions.AL_CENTER)
+	class := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Pick your class", classOptions, additions.AL_CENTER)
+	name := additions.DrawForm(gs.ScreenWidth, gs.ScreenHeight, "What's your name?", additions.AL_CENTER)
 	termbox.Flush()
 	character.CreateChar(class, race, name, gs)
 	gs.Player = &character
@@ -54,24 +51,27 @@ func (gs *GameState) charCreate() {
 func (gs *GameState) Controls() {
 	switch ev := termbox.PollEvent(); ev.Type {
 	case termbox.EventKey:
-		switch ev.Key {
-		case termbox.KeyArrowLeft:
+		switch ev.Ch {
+		case 'h':
 			gs.Player.MoveLeft(gs)
-		case termbox.KeyArrowRight:
+		case 'l':
 			gs.Player.MoveRight(gs)
-		case termbox.KeyArrowUp:
+		case 'k':
 			gs.Player.MoveUp(gs)
-		case termbox.KeyArrowDown:
+		case 'j':
 			gs.Player.MoveDown(gs)
+		}
+		switch ev.Key {
+		case termbox.KeyTab:
+			_ = additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Grid L: "+strconv.Itoa(len(gs.GameMap.RoomList)), []string{"W/E"}, additions.AL_CENTER)
+			termbox.Flush()
 		case termbox.KeyEsc:
-			termbox.Close()
-			os.Exit(0)
+			choice := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Are you sure you wish to quit?", []string{"No", "Yes"}, additions.AL_CENTER)
+			if choice == 1 {
+				termbox.Close()
+				os.Exit(0)
+			}
 		default:
-			print(ev.Key)
-			print("\n")
-			print(ev.Ch)
-			print("\n")
-			print("\n")
 		}
 	}
 }
@@ -110,7 +110,7 @@ func (gs *GameState) GameLoop() {
 	case MODE_MAPMAKE:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		gs.charCreate()
-		gs.GenRooms()
+		gs.GenMap()
 		termbox.Flush()
 		gs.Mode = MODE_CREATION
 
