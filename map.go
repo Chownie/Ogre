@@ -5,8 +5,8 @@ import (
 	"github.com/nsf/termbox-go"
 	//"math"
 	//	"fmt"
-	"math/rand"
-	//"strconv"
+	//"math/rand"
+	"strconv"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 	DOWNSTAIRS_CHAR = "<"
 	// Let's define some stuff about the map
 	SCALEMIN = 3
-	SCALEMAX = 7
+	SCALEMAX = 5
 	MINROOMS = 5
 	MAXROOMS = 8
 	// Defining directions
@@ -82,8 +82,13 @@ func (gs *GameState) AddRoomToGrid(rm *Room) {
 	gs.GameMap.RoomList = append(gs.GameMap.RoomList, rm)
 }
 
+// Randomly generates a number between Min and Max-1
+// So Random(2, 5) can generate 2, 3 and 4 but NOT 5.
 func (gs *GameState) Random(min, max int) int {
-	return rand.Intn(max-min) + min
+	if min > max {
+        panic("Min: "+strconv.Itoa(min)+" Max: "+strconv.Itoa(max))
+    }
+    return gs.RNG.Intn((max+1)-min) + min
 }
 
 // Helper function, looks within the multi-dimensional slice
@@ -129,16 +134,18 @@ func BlankMap(width, height int) *Map {
 	return &Map{Width: width, Height: height, Data: final}
 }
 
-//Fills a section with one particular tile type.
+//Fills a specific room with one particular tile type.
 func (gs *GameState) FillRoom(rm *Room, tl *Tile) {
-	for y := rm.StartY; y < (rm.StartY + rm.Height); y++ {
-		for x := rm.StartX; x < (rm.StartX + rm.Width); x++ {
-			// fmt.Println("X: ", x)
-			// fmt.Println("Y: ", y)
+    gs.FillArea(rm.StartX, rm.StartY, rm.Width, rm.Height, tl)
+}
 
+// Fills a rect with the given tile type
+func (gs *GameState) FillArea(X, Y, W, H int, tl *Tile) {
+    for y := Y; y < (Y + H); y++ {
+		for x := X; x < (X + W); x++ {
 			tile, exists := gs.GameMap.LocateTile(x, y)
 			if !exists {
-				panic("out of bounds")
+				panic("out of bounds!\nX: "+strconv.Itoa(x)+" Y: "+strconv.Itoa(y))
 			}
 			tile.SetFloor()
 		}
@@ -199,87 +206,45 @@ func (gs *GameState) VerifyLine(X, Y, L, Direction, Axis int) bool {
 }
 
 // Controls the generation of the rooms itself.
-// Starts with 1 room in the center, picks a random wall
-// and checks if there's enough space on the other side for a wall/corridor
-// if there is, cut a tile out and replace it with a door
-// then draw a corridor and make another room :)
+// Using a Binary Space Partition system to gen the map
 func (gs *GameState) GenMap() {
 	// I've attempted this many times, always with messy code and wierd logic,
 	// at 2AM or on a train while sleepless. Hopefully this attempt will go better
 	// with some documentation included.
-	// Attempt No: 6! /5 /4 /3 /2
+	// Attempt No: 7 /6 /5 /4 /3 /2
 
-	originW := gs.Random(SCALEMIN, SCALEMAX)
-	originH := gs.Random(SCALEMIN, SCALEMAX)
-	rm := gs.NewRoom((gs.GameMap.Width/2)-(originW/2),
-		(gs.GameMap.Height/2)-(originH/2),
-		originW,
-		originH,
-		false,
-		false)
-	gs.AddRoomToGrid(rm)
-
-	gs.GameMap.StartX = rm.StartX + (rm.Width / 2)
-	gs.GameMap.StartY = rm.StartY + (rm.Height / 2)
-
-	gs.Player.X = gs.GameMap.StartX
-	gs.Player.Y = gs.GameMap.StartY
-
-	gs.GenRooms()
+    gs.BSPartition(1, 1, gs.GameMap.Width-1, gs.GameMap.Height-1, 4)
 }
 
-func (gs *GameState) GenRooms() {
-	RoomCount := gs.Random(MINROOMS, MAXROOMS)
-	for i := 0; i < RoomCount; i++ {
-		Direction := gs.Random(1, 4)
-		//newRoomW := gs.Random(SCALEMIN, SCALEMAX)
-		//newRoomH := gs.Random(SCALEMIN, SCALEMAX)
+// Recursively creates the BSP
+func (gs *GameState) BSPartition(X, Y, W, H, Count int) {
+    if Count > 0 {
+        direction := gs.Random(0, 1)
+        switch direction {
+        case 0: // Cut the map into 2 vertically
+            posx := gs.Random(X, X+W)
+            gs.BSPartition(X, Y, posx, H, Count-1)      //Left
+            gs.BSPartition(posx, Y, W-posx, H, Count-1)  //Right
+        case 1: // Cut the map into 2 Horizontally
+            posy := gs.Random(Y, Y+H)
+            gs.BSPartition(X, Y, W, posy, Count-1)      //Top
+            gs.BSPartition(X, posy, W, H-posy, Count-1) //Bottom
+        default:
+            panic("Direction: "+strconv.Itoa(direction))
+        }
+    } else {
+        //RoomWidth := gs.Random(SCALEMIN, SCALEMAX)
+        //RoomHeight := gs.Random(SCALEMIN, SCALEMAX)
 
-		prevRoom := gs.GameMap.RoomList[len(gs.GameMap.RoomList)-1]
-
-		open := true
-		switch Direction {
-		case 1: // UPWARD, Y goes down  (BE_VERT, DI_BACKWARD)
-			point := gs.Random(prevRoom.StartX, prevRoom.StartX+prevRoom.Width)
-			if i%2 == 0 {
-				open = gs.MakeHall(point-1, prevRoom.StartY,
-					DI_BACKWARD,
-					BE_VERT)
-			}
-		case 2: // LEFT, X goes down (BE_HORI, DI_BACKWARD)
-			point := gs.Random(prevRoom.StartY, prevRoom.StartY+prevRoom.Height)
-			if i%2 == 0 {
-				open = gs.MakeHall(prevRoom.StartX, point,
-					DI_BACKWARD,
-					BE_HORI)
-			}
-		case 3: // RIGHT, X goes up (BE_HORI, DI_FOREWARD)
-			point := gs.Random(prevRoom.StartY, prevRoom.StartY+prevRoom.Height)
-			if i%2 == 0 {
-				open = gs.MakeHall(prevRoom.StartX+prevRoom.Width, point,
-					DI_FOREWARD,
-					BE_HORI)
-			}
-		case 4: // DOWNWARD, Y goes up (BE_VERT, DI_FOREWARD)
-			point := gs.Random(prevRoom.StartX, prevRoom.StartX+prevRoom.Width)
-			if i%2 == 0 {
-				open = gs.MakeHall(point+1, prevRoom.StartY+prevRoom.Height,
-					DI_FOREWARD,
-					BE_HORI)
-			}
-		}
-		if open == false {
-			i -= 1
-		}
-	}
+        rm := gs.NewRoom(X+2, Y+2, W-2, H-2, false, false)
+        gs.AddRoomToGrid(rm)
+        return
+    }
+    return
 }
 
 // Generates Rooms only
 func (gs *GameState) MakeRoom(X, Y, W, H, direction, axis int) bool {
-
-	//rm := gs.NewRoom(X,Y,W,H,false,false)
-	//gs.AddRoomToGrid(rm)
-
 	if axis == BE_VERT {
 		//open := gs.VerifyArea(X, Y, W, H)
 		//if open == false {
