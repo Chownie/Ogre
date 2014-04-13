@@ -37,15 +37,15 @@ var ClassBase []Pair = []Pair{
 	{Key: "Knight", Value: []int{22, 10, 18, 14, 10, 8, 8}},
 	{Key: "Cleric", Value: []int{16, 10, 14, 12, 24, 6, 8}},
 	{Key: "Barbarian", Value: []int{24, 10, 24, 16, 6, 2, 8}},
-	{Key: "Pyromancer", Value: []int{18, 10, 16, 12, 8, 14, 12}},
+	{Key: "Alchemist", Value: []int{18, 10, 16, 12, 8, 14, 12}},
 	{Key: "Sorceror", Value: []int{16, 10, 14, 12, 6, 24, 8}},
-	{Key: "Noble", Value: []int{38, 6, 6, 6, 6, 6, 6}}}
+	{Key: "Nobility", Value: []int{38, 6, 6, 6, 6, 6, 6}}}
 
 var RaceBase []Pair = []Pair{
-	//   VIT|END|STR|RES|FAI|WIS|PER
-	{Key: "Western Pilgrim", Value: []int{0, 0, 2, 0, 2, -2, 0}},
-	{Key: "Northern Hallowman", Value: []int{2, 2, -2, 0, 0, 0, -2}},
-	{Key: "Swamp Denizen", Value: []int{0, -2, 0, 0, -2, 2, 2}}}
+	//                                  VIT|END|STR|RES|FAI|WIS|PER
+	{Key: "Orc",            Value: []int{0, 0, 2, 0, 2, -2, 0}},
+	{Key: "Dwarf",          Value: []int{2, 2, -2, 0, 0, 0, -2}},
+	{Key: "Octavian",       Value: []int{0, -2, 0, 0, -2, 2, 2}}}
 
 func (ch Character) moveCharacter(x int, y int) {
 	ch.X = x

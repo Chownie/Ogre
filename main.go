@@ -2,7 +2,8 @@ package main
 
 import (
 	additions "github.com/Chownie/Termbox-Additions"
-	"github.com/nsf/termbox-go"
+	"github.com/Chownie/Termbox-Additions/utils"
+    "github.com/nsf/termbox-go"
 	"log"
 	"math/rand"
 	"os"
@@ -30,10 +31,12 @@ func main() {
 	Loggy = log.New(f, "", 0)
 
 	rng := rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
-	gameState := GameState{GameMap: BlankMap(80, 40),
-		ScreenWidth:  width,
-		ScreenHeight: height,
-		RNG:          rng}
+	gameState := new(GameState)
+    gameState.GameMap = BlankMap(80, 20)
+	gameState.ScreenWidth = width
+	gameState.ScreenHeight = height
+	gameState.RNG = rng
+    gameState.Messages = &[]string{"", "", ""}
 	gameState.Mode = MODE_SPLASH
 
 	for {
@@ -44,7 +47,7 @@ func main() {
 			case termbox.EventKey:
 				switch ev.Key {
 				case termbox.KeyEsc:
-					choice := additions.DrawMenu(width, height, "Are you sure you want to quit?", []string{"Yes", "No"}, additions.AL_CENTER)
+					choice := additions.DrawMenu(width, height, "Are you sure you want to quit?", []string{"Yes", "No"}, additions.AL_CENTER, utils.CONNECT_NONE)
 					if choice == 0 {
 						termbox.Close()
 						os.Exit(0)

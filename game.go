@@ -2,11 +2,12 @@ package main
 
 import (
 	"github.com/Chownie/Termbox-Additions"
+    "github.com/Chownie/Termbox-Additions/utils"
 	"github.com/nsf/termbox-go"
 	"math"
 	"math/rand"
 	"os"
-    "strconv"
+	"strconv"
 )
 
 const (
@@ -25,11 +26,12 @@ type GameState struct {
 	ScreenWidth  int
 	ScreenHeight int
 	RNG          *rand.Rand
+    Messages     *[]string
 }
 
 func (gs *GameState) charCreate() {
 	character := Character{}
-	displaySplash(gs.ScreenWidth, gs.ScreenHeight, termbox.ColorBlue)
+	gs.DisplaySplash(termbox.ColorBlue)
 	classOptions := []string{}
 	raceOptions := []string{}
 
@@ -40,9 +42,9 @@ func (gs *GameState) charCreate() {
 		raceOptions = append(raceOptions, race.Key)
 	}
 
-	race := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Pick your race", raceOptions, additions.AL_CENTER)
-	class := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Pick your class", classOptions, additions.AL_CENTER)
-	name := additions.DrawForm(gs.ScreenWidth, gs.ScreenHeight, "What's your name?", additions.AL_CENTER)
+	class := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Pick your class", classOptions, additions.AL_CENTER, utils.CONNECT_NONE)
+	race := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Pick your race", raceOptions, additions.AL_CENTER, utils.CONNECT_NONE)
+	name := additions.DrawForm(gs.ScreenWidth, gs.ScreenHeight, "What's your name?", additions.AL_CENTER, utils.CONNECT_NONE, 14)
 	termbox.Flush()
 	character.CreateChar(class, race, name, gs)
 	gs.Player = &character
@@ -63,10 +65,10 @@ func (gs *GameState) Controls() {
 		}
 		switch ev.Key {
 		case termbox.KeyTab:
-			_ = additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Grid L: "+strconv.Itoa(len(gs.GameMap.RoomList)), []string{"W/E"}, additions.AL_CENTER)
+			_ = additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Grid L: "+strconv.Itoa(len(gs.GameMap.RoomList)), []string{"W/E"}, additions.AL_CENTER, utils.CONNECT_NONE)
 			termbox.Flush()
 		case termbox.KeyEsc:
-			choice := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Are you sure you wish to quit?", []string{"No", "Yes"}, additions.AL_CENTER)
+			choice := additions.DrawMenu(gs.ScreenWidth, gs.ScreenHeight, "Are you sure you wish to quit?", []string{"No", "Yes"}, additions.AL_CENTER, utils.CONNECT_NONE)
 			if choice == 1 {
 				termbox.Close()
 				os.Exit(0)
@@ -103,7 +105,7 @@ func (gs *GameState) GameLoop() {
 	switch gs.Mode {
 	case MODE_SPLASH:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-		displaySplash(gs.ScreenWidth, gs.ScreenHeight, termbox.ColorRed)
+		gs.DisplaySplash(termbox.ColorRed)
 		termbox.Flush()
 		// No need for a mode change here, it's done elsewhere
 
@@ -122,11 +124,13 @@ func (gs *GameState) GameLoop() {
 
 	case MODE_GAME:
 		termbox.Clear(termbox.ColorDefault, termbox.ColorBlack)
+        gs.DisplayStatus()
 		gs.LightArea()
 		gs.DisplayMap()
+        gs.DisplayInventory()
+        gs.DisplayMessages()
 		gs.Controls()
 		gs.Player.DisplayPlayer()
-		gs.DisplayStatus()
 		termbox.Flush()
 
 	default:

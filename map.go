@@ -18,7 +18,7 @@ const (
 	DOWNSTAIRS_CHAR = "<"
 	// Let's define some stuff about the map
 	SCALEMIN = 3
-	SCALEMAX = 5
+	SCALEMAX = 6
 	MINROOMS = 5
 	MAXROOMS = 8
 	// Defining directions
@@ -27,6 +27,9 @@ const (
 	// Directions!
 	DI_FOREWARD = -1
 	DI_BACKWARD = 1
+    //Upper and lower cutting bounds
+    LOWER = 30
+    UPPER = 50
 )
 
 // Contains a "stack" of game maps to cycle
@@ -75,6 +78,16 @@ func (gs *GameState) NewRoom(X, Y, W, H int, Connect, Spec bool) *Room {
 	tl := new(Tile)
 	tl.SetFloor()
 	gs.FillRoom(&room, tl)
+    wl := new(Tile)
+    wl.Char = WALL_CHAR
+    wl.IsWalkable = false
+    wl.IsWall = true
+    wl.IsVisible = false
+    wl.Color = termbox.ColorCyan
+    gs.FillArea(X,   Y,     1, H, wl)   // fill Left wall
+    gs.FillArea(X+W, Y,     1, H+1, wl)   // Fill right wall
+    gs.FillArea(X,   Y,     W, 1, wl)   // Fill top wall
+    gs.FillArea(X,   Y+H,   W, 1, wl)   // Fill bottom wall
 	return &room
 }
 
@@ -86,9 +99,9 @@ func (gs *GameState) AddRoomToGrid(rm *Room) {
 // So Random(2, 5) can generate 2, 3 and 4 but NOT 5.
 func (gs *GameState) Random(min, max int) int {
 	if min > max {
-        panic("Min: "+strconv.Itoa(min)+" Max: "+strconv.Itoa(max))
-    }
-    return gs.RNG.Intn((max+1)-min) + min
+		panic("Min: " + strconv.Itoa(min) + " Max: " + strconv.Itoa(max))
+	}
+	return gs.RNG.Intn((max+1)-min) + min
 }
 
 // Helper function, looks within the multi-dimensional slice
@@ -136,18 +149,22 @@ func BlankMap(width, height int) *Map {
 
 //Fills a specific room with one particular tile type.
 func (gs *GameState) FillRoom(rm *Room, tl *Tile) {
-    gs.FillArea(rm.StartX, rm.StartY, rm.Width, rm.Height, tl)
+	gs.FillArea(rm.StartX, rm.StartY, rm.Width, rm.Height, tl)
 }
 
 // Fills a rect with the given tile type
 func (gs *GameState) FillArea(X, Y, W, H int, tl *Tile) {
-    for y := Y; y < (Y + H); y++ {
+	for y := Y; y < (Y + H); y++ {
 		for x := X; x < (X + W); x++ {
 			tile, exists := gs.GameMap.LocateTile(x, y)
 			if !exists {
-				panic("out of bounds!\nX: "+strconv.Itoa(x)+" Y: "+strconv.Itoa(y))
+				panic("out of bounds!\nX: " + strconv.Itoa(x) + " Y: " + strconv.Itoa(y))
 			}
-			tile.SetFloor()
+			tile.Char = tl.Char
+            tile.IsWalkable = tl.IsWalkable
+            tile.IsWall = tl.IsWall
+            tile.Color = tl.Color
+
 		}
 	}
 }
@@ -184,7 +201,6 @@ func (gs *GameState) VerifyLine(X, Y, L, Direction, Axis int) bool {
 			if exists == false {
 				return false
 			} else if tl.Char != UNSET_CHAR {
-				Loggy.Println("Tile is ", tl.Char)
 				return false
 			}
 		}
@@ -195,8 +211,6 @@ func (gs *GameState) VerifyLine(X, Y, L, Direction, Axis int) bool {
 			if exists == false {
 				return false
 			} else if tl.Char != UNSET_CHAR {
-				Loggy.Println("CurrRoom X: ", X, " CurrRoom Y: ", Y)
-				Loggy.Println(gs.GameMap.RoomList[len(gs.GameMap.RoomList)-1])
 				return false
 			}
 		}
@@ -213,34 +227,43 @@ func (gs *GameState) GenMap() {
 	// with some documentation included.
 	// Attempt No: 7 /6 /5 /4 /3 /2
 
-    gs.BSPartition(1, 1, gs.GameMap.Width-1, gs.GameMap.Height-1, 4)
+	gs.BSPartition(0, 0, gs.GameMap.Width-1, gs.GameMap.Height-1, 3)
+    gs.Player.X = 5
+    gs.Player.Y = 5
 }
 
 // Recursively creates the BSP
 func (gs *GameState) BSPartition(X, Y, W, H, Count int) {
+    //Bound := gs.Random(LOWER, UPPER)
+	Bound := 50
     if Count > 0 {
-        direction := gs.Random(0, 1)
-        switch direction {
-        case 0: // Cut the map into 2 vertically
-            posx := gs.Random(X, X+W)
-            gs.BSPartition(X, Y, posx, H, Count-1)      //Left
-            gs.BSPartition(posx, Y, W-posx, H, Count-1)  //Right
-        case 1: // Cut the map into 2 Horizontally
-            posy := gs.Random(Y, Y+H)
-            gs.BSPartition(X, Y, W, posy, Count-1)      //Top
-            gs.BSPartition(X, posy, W, H-posy, Count-1) //Bottom
-        default:
-            panic("Direction: "+strconv.Itoa(direction))
-        }
-    } else {
-        //RoomWidth := gs.Random(SCALEMIN, SCALEMAX)
-        //RoomHeight := gs.Random(SCALEMIN, SCALEMAX)
+		direction := gs.Random(0, 1)
+		switch direction {
+		case 0: // Cut the map into 2 vertically
+			//posx := gs.Random(X, X+W)
+            posx := ((X+W)*Bound)/100
 
-        rm := gs.NewRoom(X+2, Y+2, W-2, H-2, false, false)
-        gs.AddRoomToGrid(rm)
-        return
-    }
-    return
+            gs.BSPartition(X,       Y,      posx,       H,      Count-1)   //Left
+			gs.BSPartition(posx,    Y,      W-posx,     H,      Count-1)   //Right
+		case 1: // Cut the map into 2 Horizontally
+			//posy := gs.Random(Y, Y+H)
+            posy := ((Y+H)*Bound)/100
+
+
+            gs.BSPartition(X,       Y,      W,          posy,    Count-1)    //Top
+			gs.BSPartition(X,       posy,   W,          H-posy,  Count-1)    //Bottom
+		default:
+			panic("Direction: " + strconv.Itoa(direction))
+		}
+	} else {
+		RoomWidth := gs.Random(SCALEMIN, W)
+		RoomHeight := gs.Random(SCALEMIN, H)
+		
+        rm := gs.NewRoom(X, Y, RoomWidth, RoomHeight, false, false)
+		gs.AddRoomToGrid(rm)
+		return
+	}
+	return
 }
 
 // Generates Rooms only
